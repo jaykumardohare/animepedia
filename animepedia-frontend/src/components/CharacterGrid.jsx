@@ -1,4 +1,3 @@
-
 import CharacterCard from './CharacterCard';
 
 const CharacterGrid = ({ characters, title, showAnime = true }) => {
