@@ -46,15 +46,16 @@ const createAnime = async (req, res) => {
       episodes,
       status
     } = req.body;
-
-    const anime = new Anime({
+const genresArray = Array.isArray(genres) ? genres : genres.split(',').map(genre => genre.trim());
+    
+const anime = new Anime({
       title,
       originalTitle,
       image,
       description,
       releaseYear,
       studio,
-      genres: genres ? genres.split(',').map(genre => genre.trim()) : [],
+      genres: genresArray,
       episodes,
       status
     });
