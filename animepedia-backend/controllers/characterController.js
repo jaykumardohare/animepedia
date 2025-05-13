@@ -73,14 +73,14 @@ const createCharacter = async (req, res) => {
       birthday,
       height,
       weight,
-      abilities: abilities ? abilities.split(',').map(ability => ability.trim()) : [],
+      abilities: Array.isArray(abilities) ? abilities : [],
       personality,
       background,
       voiceActors: {
         japanese: voiceActors?.japanese || '',
         english: voiceActors?.english || ''
       },
-      quotes: quotes ? JSON.parse(quotes) : []
+      quotes: Array.isArray(quotes) ? quotes : []
     });
 
     const createdCharacter = await character.save();
@@ -89,7 +89,6 @@ const createCharacter = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
-
 // @desc    Update a character
 // @route   PUT /api/characters/:id
 // @access  Private
