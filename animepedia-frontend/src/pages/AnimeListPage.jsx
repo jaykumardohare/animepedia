@@ -10,11 +10,21 @@ const AnimeListPage = () => {
   const [animeList, setAnimeList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [page, setPage] = useState(parseInt(searchParams.get('page') || '1'));
   const [totalPages, setTotalPages] = useState(1);
 
   const query = searchParams.get('query') || '';
   const genre = searchParams.get('genre') || '';
+  const page = parseInt(searchParams.get('page') || '1');
+
+  // Reset page to 1 if query or genre changes
+  useEffect(() => {
+    const currentPage = parseInt(searchParams.get('page') || '1');
+    if (currentPage !== 1) {
+      const newParams = new URLSearchParams(searchParams);
+      newParams.set('page', '1');
+      setSearchParams(newParams);
+    }
+  }, [query, genre]);
 
   useEffect(() => {
     const fetchAnime = async () => {
@@ -34,16 +44,10 @@ const AnimeListPage = () => {
     fetchAnime();
   }, [page, query, genre]);
 
-  useEffect(() => {
-    setSearchParams(prev => {
-      if (page !== 1) prev.set('page', page.toString());
-      else prev.delete('page');
-      return prev;
-    });
-  }, [page, setSearchParams]);
-
   const handlePageChange = (newPage) => {
-    setPage(newPage);
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('page', newPage.toString());
+    setSearchParams(newParams);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -51,7 +55,7 @@ const AnimeListPage = () => {
     <Layout>
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-6">Anime Database</h1>
-        
+
         <div className="bg-white rounded-lg shadow-md p-4 mb-8">
           <form className="flex flex-col md:flex-row gap-4">
             <div className="flex-grow">
@@ -61,9 +65,10 @@ const AnimeListPage = () => {
                 value={query}
                 onChange={(e) => {
                   const newParams = new URLSearchParams(searchParams);
-                  if (e.target.value) newParams.set('query', e.target.value);
+                  const value = e.target.value;
+                  if (value) newParams.set('query', value);
                   else newParams.delete('query');
-                  newParams.delete('page');
+                  newParams.set('page', '1');
                   setSearchParams(newParams);
                 }}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -74,9 +79,10 @@ const AnimeListPage = () => {
                 value={genre}
                 onChange={(e) => {
                   const newParams = new URLSearchParams(searchParams);
-                  if (e.target.value) newParams.set('genre', e.target.value);
+                  const value = e.target.value;
+                  if (value) newParams.set('genre', value);
                   else newParams.delete('genre');
-                  newParams.delete('page');
+                  newParams.set('page', '1');
                   setSearchParams(newParams);
                 }}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -100,7 +106,7 @@ const AnimeListPage = () => {
       ) : error ? (
         <div className="text-center py-12">
           <p className="text-red-500 mb-4">{error}</p>
-          <button 
+          <button
             className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700"
             onClick={() => window.location.reload()}
           >
@@ -116,7 +122,7 @@ const AnimeListPage = () => {
           ) : (
             <>
               <AnimeGrid animeList={animeList} />
-              
+
               <div className="flex justify-center mt-8">
                 <div className="flex space-x-2">
                   <button
